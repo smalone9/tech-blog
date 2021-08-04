@@ -2,6 +2,7 @@
 const Sequelize = require("sequelize");
 
 // require dotenv name & password
+require("dotenv").config();
 
 let sequelize;
 
