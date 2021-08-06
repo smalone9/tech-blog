@@ -1,7 +1,8 @@
 const router = require("express").Router();
 const { Post, User, Comment } = require("../models");
+const withAuth = require("../utils/auth");
 
-router.get("/dashboard", async (req, res) => {
+router.get("/dashboard", withAuth, async (req, res) => {
   try {
     const allPost = await Post.findAll({});
     const posts = allPost.map((post) => post.get({ plain: true }));
@@ -12,9 +13,9 @@ router.get("/dashboard", async (req, res) => {
   }
 });
 
-router.get("/post/:id", (req, res) => {
+router.get("/edit/:id", withAuth, async (req, res) => {
   try {
-    const onePost = await Post.findOne({
+    const onePost = await Post.findByPk({
       where: { id: req.params.id },
       include: {
         model: Comment,
