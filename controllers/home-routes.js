@@ -35,7 +35,7 @@ router.get("/post/:id", withAuth, async (req, res) => {
         },
       ],
     });
-    const post = dbPostData.get({ plain: true });
+    const post = onePost.get({ plain: true });
     res.render("single-post", post);
   } catch (err) {
     console.log(err);
