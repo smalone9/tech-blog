@@ -1,89 +1,125 @@
+const sequelize = require("../../config/connection");
 const router = require("express").Router();
 const { User, Post, Comment } = require("../../models");
 const withAuth = require("../../utils/auth");
 
-router.get("/", withAuth, async (req, res) => {
-  try {
-    const allPost = await Post.findAll({});
-    const posts = allPost.map((post) => post.get({ plain: true }));
-    res.render("posts", { posts });
-  } catch (err) {
-    console.log(err);
-    res.status(500).json(err);
-  }
-});
-
-router.get("/:id", withAuth, async (req, res) => {
-  try {
-    const onePost = await Post.findOne({
-      where: { id: req.params.id },
-      include: [
-        {
-          model: Comment,
-          include: {
-            model: User,
-            attributes: ["username"],
-          },
-        },
-        { model: User, attributes: ["username"] },
-      ],
-    });
-    const post = onePost.get({ plain: true });
-    res.render("single-post", post);
-  } catch (err) {
-    console.log(err);
-    res.status(500).json(err);
-  }
-});
-
-router.post("/", withAuth, async (req, res) => {
-  try {
-    const onePost = await Post.create({
-      title: req.body.title,
-      post_url: req.body.post_url,
-      user_id: req.session.user_id,
-    });
-    const onePost = onePost.map((post) => post.post({ plain: true }));
-    res.render("new-post", { posts });
-  } catch (err) {
-    console.log(err);
-    res.status(500).json(err);
-  }
-});
-
-router.put("/:id", withAuth, async (req, res) => {
-  try {
-    const onePost = await Post.update(
+router.get("/", (req, res) => {
+  Post.findAll({
+    attributes: ["id", "content", "title", "created_at"],
+    order: [["create_at", "DESC"]],
+    include: [
       {
-        title: req.body.title,
+        model: Comment,
+        attributes: ["id", "comment_text", "post_id", "user_id", "created_at"],
+        include: {
+          model: User,
+          attributes: ["username"],
+        },
       },
       {
-        where: {
-          id: req.params.id,
-        },
-      }
-    );
-    const onePost = onePost.map((post) => post.put({ plain: true }));
-    res.render("update-post", { posts });
-  } catch (err) {
-    console.log(err);
-    res.status(500).json(err);
-  }
+        model: User,
+        attributes: ["username"],
+      },
+    ],
+  })
+    .then((dbPostData) => res.json(dbPostData))
+    .catch((err) => {
+      console.log(err);
+      res.status(500).json(err);
+    });
 });
 
-router.delete("/:id", withAuth, async (req, res) => {
-  try {
-    const onePost = await Post.destroy({
+router.get("/:id", (req, res) => {
+  console.log(req.params.id);
+  Post.findOne({
+    where: {
+      id: req.params.id,
+    },
+    attributes: ["id", "content", "title", "created_at"],
+    include: [
+      {
+        model: Comment,
+        attributes: ["id", "comment_text", "post_id", "user_id", "created_at"],
+        include: {
+          model: User,
+          attributes: ["username"],
+        },
+      },
+      {
+        model: User,
+        attributes: ["username"],
+      },
+    ],
+  })
+    .then((dbPostData) => {
+      if (!dbPostData) {
+        res.status(404).json({ message: "No post matching this ID" });
+        return;
+      }
+      res.json(dbPostData);
+    })
+    .catch((err) => {
+      console.log(err);
+      res.status(500).json(err);
+    });
+});
+
+router.post("/", withAuth, (req, res) => {
+  console.log(req.body);
+  console.log(req);
+  Post.create({
+    title: req.body.title,
+    content: req.body.content,
+    user_id: req.session.user_id,
+  })
+    .then((dbPostData) => res.json(dbPostData))
+    .catch((err) => {
+      console.log(err);
+      res.status(500).json(err);
+    });
+});
+
+router.put("/:id", withAuth, (req, res) => {
+  Post.update(
+    {
+      title: req.body.title,
+    },
+    {
       where: {
         id: req.params.id,
       },
+    }
+  )
+    .then((dbPostData) => {
+      if (!dbPostData) {
+        res.status(404).json({ message: "No post matching this ID." });
+        return;
+      }
+      res.json(dbPostData);
+    })
+    .catch((err) => {
+      console.log(err);
+      res.status(500).json(err);
     });
-    const onePost = onePost.map((post) => post.delete({ plain: true }));
-    res.render("delete-post", { posts });
-  } catch (err) {
-    console.log(err);
-    res.status(500).json(err);
-  }
+});
+
+router.delete("/:id", withAuth, (req, res) => {
+  Post.destroy({
+    where: {
+      id: req.params.id,
+    },
+  })
+    .then((dbPostData) => {
+      if (!dbPostData) {
+        res.status(404).json({ message: "No post found matching this ID" });
+        return;
+      }
+      res.json(dbPostData);
+    })
+    .catch((err) => {
+      console.log(err);
+      res.status(500).json(err);
+    });
 });
 
 module.exports = router;
