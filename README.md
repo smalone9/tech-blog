@@ -7,10 +7,10 @@ AS A developer who writes about tech
 I WANT a CMS-style blog site
 SO THAT I can publish articles, blog posts, and my thoughts and opinions
 
-## Vioeo Walkthrough
+## Heroku Link
 [Check it Out](https://pacific-hamlet-06579.herokuapp.com/)
 
-![Image of Internet Retail](screenshot.PNG)
+![Image of Tech Blog](screenshot.PNG)
 
 GIVEN a CMS-style blog site
 WHEN I visit the site for the first time
