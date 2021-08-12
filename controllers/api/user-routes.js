@@ -1,4 +1,5 @@
 const router = require("express").Router();
+const { request } = require("express");
 const { User, Post, Comment } = require("../../models");
 
 // GET api user
@@ -50,12 +51,14 @@ router.get("/:id", (req, res) => {
 });
 
 router.post("/", (req, res) => {
+  console.log(req.body);
   User.create({
     username: req.body.username,
     email: req.body.email,
     password: req.body.password,
   })
     .then((dbUserData) => {
+      console.log("------------");
       req.session.save(() => {
         req.session.user_id = dbUserData.id;
         req.session.username = dbUserData.username;
