@@ -58,5 +58,5 @@ THEN I am able to view comments but I am prompted to log in again before I can a
 
 ## Contribution
 Made with ❤️ by Samantha Malone
-Shout out to my tutor
+Shout out to my tutor & Nathan Pfau
 © 2021 Samantha Malone. All rights reserved.
